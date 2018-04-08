@@ -40,7 +40,7 @@ void loop()
 }
 
 void light_stripe(int start_index) {
-	paint_strip_black();
+	paint_strip(ColorFromPalette(color_palette, 0));
 
 	for (int offset = 0; offset < STRIPE_WIDTH; ++offset) {
 		int led_at = start_index + offset;
@@ -54,6 +54,6 @@ void light_stripe(int start_index) {
 	FastLED.show();
 }
 
-void paint_strip_black() {
-	leds(0, COLOR_LEDS_COUNT - 1) = ColorFromPalette(color_palette, 0);
+void paint_strip(CRGB color) {
+	leds(0, COLOR_LEDS_COUNT - 1) = color;
 }
