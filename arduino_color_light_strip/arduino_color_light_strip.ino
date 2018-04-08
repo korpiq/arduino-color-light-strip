@@ -32,21 +32,26 @@ int stripe_start = -STRIPE_WIDTH;
 
 void loop()
 {
-	light_strip();
+	light_strip(millis());
 
 	delay(DELAY);
 }
 
-void light_strip() {
+void light_strip(uint32_t milliseconds) {
 	for (int led_at = 0; led_at < COLOR_LEDS_COUNT; ++led_at) {
-		leds[led_at] = color_for_led(led_at);
+		leds[led_at] = color_for_led(led_at, milliseconds);
 	}
 
 	FastLED.show();
 }
 
-CRGB color_for_led(uint16_t led_index) {
-	return ColorFromPalette(color_palette, has_led_base_color(led_index) ? 0 : led_index);
+CRGB color_for_led(uint16_t led_index, uint32_t milliseconds) {
+	uint32_t frame_number = milliseconds / 10; // 100 fps
+	uint32_t led_index_uint32 = led_index;
+	uint32_t led_frame_number = frame_number + led_index_uint32; // loop over whole color palette
+	uint8_t color_index = has_led_base_color(led_index) ? 0 : led_frame_number;
+
+	return ColorFromPalette(color_palette, color_index);
 }
 
 bool has_led_base_color(uint16_t led_index) {
