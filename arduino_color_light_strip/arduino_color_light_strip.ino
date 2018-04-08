@@ -37,14 +37,18 @@ void loop()
 	delay(DELAY);
 }
 
-CRGB color_for_led() {
-	return ColorFromPalette(color_palette, 0);
-}
-
 void light_strip() {
 	for (int led_at = 0; led_at < COLOR_LEDS_COUNT; ++led_at) {
-		leds[led_at] = color_for_led();
+		leds[led_at] = color_for_led(led_at);
 	}
 
 	FastLED.show();
+}
+
+CRGB color_for_led(uint16_t led_index) {
+	return ColorFromPalette(color_palette, has_led_base_color(led_index) ? 0 : led_index);
+}
+
+bool has_led_base_color(uint16_t led_index) {
+	return led_index & 7;
 }
