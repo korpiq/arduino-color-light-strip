@@ -32,28 +32,19 @@ int stripe_start = -STRIPE_WIDTH;
 
 void loop()
 {
-	if (++stripe_start > COLOR_LEDS_COUNT)
-		stripe_start = -STRIPE_WIDTH;
+	light_strip();
 
-	light_stripe(stripe_start);
 	delay(DELAY);
 }
 
-void light_stripe(int start_index) {
-	paint_strip(ColorFromPalette(color_palette, 0));
+CRGB color_for_led() {
+	return ColorFromPalette(color_palette, 0);
+}
 
-	for (int offset = 0; offset < STRIPE_WIDTH; ++offset) {
-		int led_at = start_index + offset;
-
-		if (led_at > 0 && led_at < COLOR_LEDS_COUNT) {
-			uint8_t color = (256 / STRIPE_WIDTH) * offset;
-			leds[led_at] = ColorFromPalette(color_palette, color);
-		}
+void light_strip() {
+	for (int led_at = 0; led_at < COLOR_LEDS_COUNT; ++led_at) {
+		leds[led_at] = color_for_led();
 	}
 
 	FastLED.show();
-}
-
-void paint_strip(CRGB color) {
-	leds(0, COLOR_LEDS_COUNT - 1) = color;
 }
