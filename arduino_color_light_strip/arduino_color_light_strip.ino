@@ -32,9 +32,11 @@ int stripe_start = -STRIPE_WIDTH;
 
 void loop()
 {
-	light_strip(millis());
+	uint32_t milliseconds = millis();
+	light_strip(milliseconds);
 
-	delay(DELAY);
+	uint32_t delay_ms = DELAY - (millis() - milliseconds);
+	delay(delay_ms < DELAY ? delay_ms : DELAY);
 }
 
 void light_strip(uint32_t milliseconds) {
@@ -62,15 +64,24 @@ uint16_t led_flash_get_next_index() {
 	return (random() % COLOR_LEDS_COUNT);
 }
 
-uint32_t led_flash_last_time = 0, led_flash_duration = 30, led_flash_interval = 50;
+uint32_t led_flash_last_time = 0, led_flash_duration = 1000, led_flash_interval = 1000;
 uint16_t led_flash_current_index = -1, led_flash_next_index = led_flash_get_next_index();
-CRGB led_flash_color = ColorFromPalette(color_palette, 128);
+CRGB led_flash_color = CRGB(255,96,32); // ColorFromPalette(color_palette, 128);
+CRGB led_flash_current_color = CRGB();
 
 CRGB led_flash(uint16_t led_index, uint32_t milliseconds, CRGB led_default_color) {
 
 	if (led_index == led_flash_current_index) {
 		if (milliseconds < led_flash_last_time + led_flash_duration) {
-			return led_flash_color;
+			uint32_t gone_milliseconds = milliseconds - led_flash_last_time;
+			uint32_t gone_fraction = 256UL * gone_milliseconds / led_flash_duration;
+			uint8_t gone_fract8 = (uint8_t) gone_fraction;
+
+			led_flash_current_color.red = lerp8by8(led_flash_color.red, led_default_color.red, gone_fract8);
+			led_flash_current_color.green = lerp8by8(led_flash_color.green, led_default_color.green, gone_fract8);
+			led_flash_current_color.blue = lerp8by8(led_flash_color.blue, led_default_color.blue, gone_fract8);
+
+			return led_flash_current_color;
 		}
 		led_flash_current_index = -1;
 	}
